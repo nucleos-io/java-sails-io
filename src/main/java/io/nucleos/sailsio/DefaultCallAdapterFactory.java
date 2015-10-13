@@ -13,9 +13,8 @@ public class DefaultCallAdapterFactory implements CallAdapter.Factory {
             return null;
         }
         Type responseType = getCallResponseType(returnType);
-        return new DefaultAdapter(responseType);
+        return new DefaultCallAdapter(responseType);
     }
-
 
     private Type getCallResponseType(Type returnType) {
         if (!(returnType instanceof ParameterizedType)) {

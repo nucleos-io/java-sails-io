@@ -6,6 +6,8 @@ package io.nucleos.sailsio;
 public class DefaultInterceptor implements Interceptor {
     @Override
     public Request onRequest(Request.Builder builder) {
+        Param accessToken = new Param("access_token", "acce");
+        builder.addBodyParam(accessToken);
         return builder.build();
     }
 

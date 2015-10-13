@@ -14,10 +14,13 @@ public class ConnectionParam extends Param {
 
     public ConnectionParam(String key, String value) {
         super(key, value);
+
+        if (!checkAllowedPrams(key)) {
+            throw new IllegalArgumentException("The key " + key + " is not allowed");
+        }
     }
 
-    @Override
-    public boolean checkAllowedPrams(String key) {
+    private boolean checkAllowedPrams(String key) {
         return Arrays.asList(ALLOWED_PARAMS).contains(key);
     }
 }

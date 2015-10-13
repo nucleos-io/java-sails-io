@@ -1,5 +1,7 @@
 package io.nucleos.sailsio;
 
+import org.json.JSONObject;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -18,6 +20,7 @@ public class SailsIO {
     private Set<ConnectionParam> connectionParams;
     private CallAdapter.Factory callAdapterFactory;
     private Interceptor interceptor;
+    private Converter.Factory converterFactory;
 
     /**
      *
@@ -37,7 +40,10 @@ public class SailsIO {
         this.interceptor = interceptor;
 
         IO.Options options = new IO.Options();
-        socket = IO.socket(this.baseUrl, options);
+        this.socket = IO.socket(this.baseUrl, options);
+
+        // Por los momentos solo se utilizara el GSONConverter
+        this.converterFactory = new GsonConverterFactory();
 
         if (autoConnect) {
             connect();
@@ -51,19 +57,41 @@ public class SailsIO {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> T cretate(Class<T> service) {
+    public <T> T create(Class<T> service) {
         return (T) Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[] {service},
         new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                return null;
+                return loadMethodHandler(method).invoke(args);
             }
         });
+    }
+
+    private <T> MethodHandler<?> loadMethodHandler(Method method) {
+        return MethodHandler.create(method,this);
     }
 
     public CallAdapter callAdapter(Type returnType) {
         Utils.checkNotNull(returnType, "The returnType not should be null");
         return callAdapterFactory.get(returnType);
+    }
+
+    public <T> Converter<T, RequestBody> requestConverter() {
+        // noinspection unchecked
+        return (Converter<T, RequestBody>) this.converterFactory.toRequestBody();
+    }
+
+    public <T> Converter<JSONObject, T> responseConverter() {
+        // noinspection unchecked
+        return (Converter<JSONObject, T>) this.converterFactory.toResponseBody();
+    }
+
+    public Interceptor getInterceptor() {
+        return this.interceptor;
+    }
+
+    public Socket getSocket() {
+        return this.socket;
     }
 
     public void connect() {

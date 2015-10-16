@@ -1,6 +1,7 @@
 package io.nucleos.sailsio;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 
@@ -11,14 +12,14 @@ public class GsonRequestConverter<T> implements Converter<T,RequestBody> {
 
     private Gson gson;
 
-
-    public GsonRequestConverter() {
-        this.gson = new Gson();
+    public GsonRequestConverter(Gson gson) {
+        this.gson = gson;
     }
 
     @Override
     public RequestBody convert(T value) {
-        return new RequestBody(gson.toJson(value));
+        Type type = new TypeToken<T>(){}.getType();
+        return new RequestBody(gson.toJsonTree(value, type));
     }
 
 }

@@ -9,28 +9,107 @@ import java.lang.reflect.Type;
 public class MethodHandler<T> {
 
     private SailsIO io;
-    private RequestFactory requestFactory;
-    private CallAdapter callAdapter;
+    private Method method;
+    private FactoryParser factoryParser;
+    private Adapter<?,?> adapter;
+    private Type responseType;
 
-    public MethodHandler(SailsIO io, RequestFactory requestFactory, CallAdapter callAdapter) {
-        this.io = io;
-        this.requestFactory = requestFactory;
-        this.callAdapter = callAdapter;
-    }
+    /*
+     * ---------------------------------------------------------------------------------------------
+     * ---------------------------------------------------------------------------------------------
+     * public methods
+     * ---------------------------------------------------------------------------------------------
+     * ---------------------------------------------------------------------------------------------
+     */
 
+    /* statics */
+
+    /**
+     *
+     * @param method
+     * @param io
+     * @return
+     */
     public static MethodHandler<?> create(Method method, SailsIO io) {
-        RequestFactory requestFactory = RequestFactoryParser.parse(method, io);
-        CallAdapter callAdapter = createCallAdapter(method, io);
-        return new MethodHandler<>(io, requestFactory, callAdapter);
+        FactoryParser factoryParser = FactoryParser.parse(method,io);
+        return new MethodHandler<>(method, factoryParser, io);
     }
 
-    private static CallAdapter createCallAdapter(Method method, SailsIO io) {
-        Type returnType = method.getGenericReturnType();
-        return io.callAdapter(returnType);
-    }
+    /* end statics */
 
+
+    /**
+     *
+     * @param args
+     * @return
+     */
     public Object invoke(Object... args) {
-        return this.callAdapter.adapt(new SocketCall<>(this.io, this.requestFactory, args));
+        if (this.factoryParser.isListener()) {
+
+            if (args != null && args.length > 0) {
+                throw new IllegalArgumentException("The @On annotation method not allow arguments");
+            }
+
+            return ((ListenerAdapter)this.adapter).adapt(new SocketListener<>(
+                    this.io,
+                    this.factoryParser.toListenerFactory(),
+                    this.responseType));
+
+        } else {
+
+            return ((CallAdapter)this.adapter).adapt(new SocketCall<>(
+                    this.io,
+                    this.factoryParser.toRequestFactory(),
+                    this.responseType,
+                    args));
+
+        }
     }
 
+    /*
+     * ---------------------------------------------------------------------------------------------
+     * ---------------------------------------------------------------------------------------------
+     * Private methods
+     * ---------------------------------------------------------------------------------------------
+     * ---------------------------------------------------------------------------------------------
+     */
+
+    /**
+     * Constructor
+     *
+     * @param io
+     * @param factoryParser
+     */
+    private MethodHandler(Method method, FactoryParser factoryParser, SailsIO io) {
+
+        this.method = method;
+        this.io = io;
+        this.factoryParser = factoryParser;
+
+        if (factoryParser.isListener()) {
+            this.adapter = createListenerAdapter();
+        } else {
+            this.adapter = createCallAdapter();
+        }
+
+        this.responseType = this.adapter.responseType();
+    }
+
+    /**
+     *
+     * @return
+     */
+    private CallAdapter createCallAdapter() {
+        Type returnType = this.method.getGenericReturnType();
+        return this.io.callAdapter(returnType);
+    }
+
+    /**
+     *
+     * @return
+     */
+    private ListenerAdapter createListenerAdapter() {
+        Type returnType = this.method.getGenericReturnType();
+        return this.io.listenerAdapter(returnType);
+    }
 }

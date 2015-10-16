@@ -1,5 +1,11 @@
 package io.nucleos.sailsio;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -23,10 +29,22 @@ public class Request {
     }
 
     public JSONObject getBody() throws JSONException {
-        JSONObject json = new JSONObject();
 
-        json.put("param", this.requestBody.toJson());
+        JSONObject json = new JSONObject();
+        JsonElement params = this.requestBody.toJson();
+        Gson gson = new Gson();
+        String paramStr = gson.toJson(params);
+
         json.put("url", this.relativeUrl);
+
+        if (params.isJsonArray()) {
+            JSONArray jsonArray = new JSONArray(paramStr);
+            json.put("param", jsonArray);
+
+        } else if (params.isJsonObject()) {
+            JSONObject jsonObject = new JSONObject(paramStr);
+            json.put("params", jsonObject);
+        }
 
         return json;
     }
@@ -34,11 +52,16 @@ public class Request {
     /**
      *
      */
-    final static class Builder {
+    public final static class Builder {
 
         private String relativeUrl;
         private RequestBody body;
         private String method;
+
+
+        public Builder() {
+            this.body = new RequestBody(new JsonObject());
+        }
 
         public Builder relativeUrl(String relativeUrl) {
             this.relativeUrl = relativeUrl;
@@ -57,7 +80,6 @@ public class Request {
         }
 
         public Builder addBodyParam(Param param) {
-            Utils.checkNotNull(this.body, "The body not should be null");
             this.body.addParam(param);
             return this;
         }

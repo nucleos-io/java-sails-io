@@ -70,4 +70,12 @@ public final class Utils {
         return paramType;
     }
 
+    public static Type getResponseType(Type returnType) {
+        if (!(returnType instanceof ParameterizedType)) {
+            throw new IllegalArgumentException(
+                    "Return type must be parameterized as Call<Foo>, Listener<Foo> or Call<? extends Foo>, Listener<? extends Foo>");
+        }
+        return Utils.getSingleParameterUpperBound((ParameterizedType) returnType);
+    }
+
 }

@@ -5,5 +5,5 @@ package io.nucleos.sailsio;
  */
 public interface Interceptor {
     public Request onRequest(Request.Builder builder);
-    public Response onResponse(Response.Builder builder);
+    public ResponseRequest onResponse(ResponseRequest.Builder builder);
 }

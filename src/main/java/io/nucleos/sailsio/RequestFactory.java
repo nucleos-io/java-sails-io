@@ -23,19 +23,21 @@ public class RequestFactory {
                 .relativeUrl(this.relativeUrl)
                 .method(this.httpMethod);
 
-        if (requestArguments.size() != args.length) {
-            throw new IllegalArgumentException("Argument count ("
-                    + args.length
-                    + ") doesn't match action count ("
-                    + requestArguments.size()
-                    + ")");
+        if (args != null) {
+            if (requestArguments.size() != args.length) {
+                throw new IllegalArgumentException("Argument count ("
+                        + args.length
+                        + ") doesn't match action count ("
+                        + requestArguments.size()
+                        + ")");
+            }
+
+            for (int i = 0, count = args.length; i < count; i++) {
+                this.requestArguments.get(i).perform(builder, args[i]);
+            }
         }
 
-        for (int i = 0, count = args.length; i < count; i++) {
-            this.requestArguments.get(i).perform(builder, args[i]);
-        }
-
-        return null;
+        return builder;
     }
 
 }

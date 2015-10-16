@@ -19,7 +19,7 @@ public class DefaultCallAdapter implements CallAdapter<Call<?>> {
     }
 
     @Override
-    public <R> Call<R> adapt(Call<R> call) {
+    public Call<?> adapt(Call call) {
         return call;
     }
 }

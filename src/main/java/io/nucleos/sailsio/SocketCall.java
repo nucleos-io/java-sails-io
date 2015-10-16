@@ -1,9 +1,11 @@
 package io.nucleos.sailsio;
 
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.lang.reflect.Type;
 
 import io.socket.client.Ack;
-import io.socket.client.Socket;
 
 /**
  * Created by cmarcano on 07/10/15.
@@ -13,9 +15,11 @@ public class SocketCall<T> implements Call<T> {
     private SailsIO io;
     private RequestFactory requestFactory;
     private Object[] args;
+    private Type responseType;
 
-    public SocketCall(SailsIO io, RequestFactory requestFactory, Object... args) {
+    public SocketCall(SailsIO io, RequestFactory requestFactory, Type responseType, Object... args) {
         this.io = io;
+        this.responseType = responseType;
         this.requestFactory = requestFactory;
         this.args = args;
     }
@@ -28,11 +32,19 @@ public class SocketCall<T> implements Call<T> {
 
         try {
 
-            this.io.getSocket().emit(request.getMethod(), request.getBody(), new Ack() {
+            this.io.getSocket().emit(request.getMethod().toLowerCase(), request.getBody(), new Ack() {
                 @Override
                 public void call(Object... args) {
+                    try {
 
-                    callback.onResponse(null);
+                        JSONObject responseJson  = (JSONObject) args[0];
+                        // noinspection unchecked
+                        ResponseRequest<T> responseRequest = io.responseConverter(responseType).convert(responseJson);
+                        callback.onResponse(responseRequest);
+
+                    } catch (Exception e) {
+                        callback.onFailure(e);
+                    }
                 }
             });
 

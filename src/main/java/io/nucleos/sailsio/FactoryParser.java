@@ -5,12 +5,14 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.nucleos.sailsio.annotations.Body;
-import io.nucleos.sailsio.annotations.DELETE;
-import io.nucleos.sailsio.annotations.GET;
-import io.nucleos.sailsio.annotations.On;
-import io.nucleos.sailsio.annotations.POST;
-import io.nucleos.sailsio.annotations.PUT;
+import io.nucleos.sailsio.annotation.Body;
+import io.nucleos.sailsio.annotation.DELETE;
+import io.nucleos.sailsio.annotation.GET;
+import io.nucleos.sailsio.annotation.ON;
+import io.nucleos.sailsio.annotation.POST;
+import io.nucleos.sailsio.annotation.PUT;
+import io.nucleos.sailsio.request.RequestBody;
+import io.nucleos.sailsio.request.RequestFactory;
 
 /**
  * Created by luis on 11/10/15.
@@ -21,7 +23,7 @@ public class FactoryParser {
     private String httpMethod;
     private String relativeUrl;
     private SailsIO io;
-    private List<RequestArgument> requestArguments;
+    private List<io.nucleos.sailsio.request.RequestArgument> requestArguments;
     private String onEvent;
 
     private FactoryParser(Method method, SailsIO io) {
@@ -42,13 +44,13 @@ public class FactoryParser {
         return !this.onEvent.isEmpty();
     }
 
-    public RequestFactory toRequestFactory() {
+    public io.nucleos.sailsio.request.RequestFactory toRequestFactory() {
         return new RequestFactory(this.httpMethod, this.relativeUrl, this.requestArguments);
 
     }
 
-    public ListenerFactory toListenerFactory() {
-        return new ListenerFactory(onEvent);
+    public io.nucleos.sailsio.event.ListenerFactory toListenerFactory() {
+        return new io.nucleos.sailsio.event.ListenerFactory(onEvent);
     }
 
     public Method getMethod() {
@@ -65,8 +67,8 @@ public class FactoryParser {
                 setRequestParameters("PUT", ((PUT) annotation).value());
             } else if (annotation instanceof DELETE) {
                 setRequestParameters("DELETE", ((DELETE) annotation).value());
-            } else if (annotation instanceof On) {
-                onEvent = ((On) annotation).value();
+            } else if (annotation instanceof ON) {
+                onEvent = ((ON) annotation).value();
             }
         }
     }
@@ -75,7 +77,7 @@ public class FactoryParser {
         boolean hasBody = false;
         Annotation[][] annotations = method.getParameterAnnotations();
         if (annotations.length > 0 && !onEvent.isEmpty()) {
-            throw new IllegalArgumentException("The @On annotation method not allow annotations");
+            throw new IllegalArgumentException("The @ON annotation method not allow annotations");
         }
         for (Annotation[] parameterAnnotations : annotations) {
             for (Annotation annotation : parameterAnnotations) {
@@ -85,7 +87,7 @@ public class FactoryParser {
                     }
                     hasBody = true;
                     Converter<?, RequestBody> converter = this.io.requestConverter();
-                    requestArguments.add(new RequestArgument.Body<>(converter, ((Body) annotation).value()));
+                    requestArguments.add(new io.nucleos.sailsio.request.RequestArgument.Body<>(converter, ((Body) annotation).value()));
                 }
             }
         }

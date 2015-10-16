@@ -5,10 +5,10 @@ import java.lang.reflect.Type;
 /**
  * Created by cmarcano on 15/10/15.
  */
-public interface Adapter<R, T> {
+public interface Adapter<A, T> {
 
     Type responseType();
-    T adapt(R r);
+    T adapt(A a);
 
     interface Factory {
         Adapter<?, ?> get(Type returnType);

@@ -3,6 +3,8 @@ package io.nucleos.sailsio;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 
+import io.nucleos.sailsio.event.SocketListener;
+
 /**
  * Created by cmarcano on 13/10/15.
  */
@@ -47,17 +49,17 @@ public class MethodHandler<T> {
         if (this.factoryParser.isListener()) {
 
             if (args != null && args.length > 0) {
-                throw new IllegalArgumentException("The @On annotation method not allow arguments");
+                throw new IllegalArgumentException("The @ON annotation method not allow arguments");
             }
 
-            return ((ListenerAdapter)this.adapter).adapt(new SocketListener<>(
+            return ((io.nucleos.sailsio.event.ListenerAdapter)this.adapter).adapt(new SocketListener<>(
                     this.io,
                     this.factoryParser.toListenerFactory(),
                     this.responseType));
 
         } else {
 
-            return ((CallAdapter)this.adapter).adapt(new SocketCall<>(
+            return ((io.nucleos.sailsio.request.CallAdapter)this.adapter).adapt(new io.nucleos.sailsio.request.SocketCall<>(
                     this.io,
                     this.factoryParser.toRequestFactory(),
                     this.responseType,
@@ -99,7 +101,7 @@ public class MethodHandler<T> {
      *
      * @return
      */
-    private CallAdapter createCallAdapter() {
+    private io.nucleos.sailsio.request.CallAdapter createCallAdapter() {
         Type returnType = this.method.getGenericReturnType();
         return this.io.callAdapter(returnType);
     }
@@ -108,7 +110,7 @@ public class MethodHandler<T> {
      *
      * @return
      */
-    private ListenerAdapter createListenerAdapter() {
+    private io.nucleos.sailsio.event.ListenerAdapter createListenerAdapter() {
         Type returnType = this.method.getGenericReturnType();
         return this.io.listenerAdapter(returnType);
     }

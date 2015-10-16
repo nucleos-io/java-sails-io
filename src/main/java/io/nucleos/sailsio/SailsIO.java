@@ -9,9 +9,13 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 
+import io.nucleos.sailsio.event.DefaultListenerAdapterFactory;
+import io.nucleos.sailsio.event.RawEvent;
+import io.nucleos.sailsio.request.DefaultCallAdapterFactory;
+import io.nucleos.sailsio.request.DefaultInterceptor;
+import io.nucleos.sailsio.request.ResponseRequest;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import io.socket.emitter.Emitter;
 
 public class SailsIO {
     private static final String TAG = SailsIO.class.getSimpleName();
@@ -19,19 +23,19 @@ public class SailsIO {
 
     private String baseUrl;
     private Socket socket;
-    private CallAdapter.Factory callAdapterFactory;
-    private ListenerAdapter.Factory listenerAdapterFactory;
-    private Interceptor interceptor;
+    private io.nucleos.sailsio.request.CallAdapter.Factory callAdapterFactory;
+    private io.nucleos.sailsio.event.ListenerAdapter.Factory listenerAdapterFactory;
+    private io.nucleos.sailsio.request.Interceptor interceptor;
     private Converter.Factory converterFactory;
-    private RawEvent rawEvent;
+    private io.nucleos.sailsio.event.RawEvent rawEvent;
 
     private SailsIO(
             String baseUrl,
             Options options,
             boolean autoConnect,
-            CallAdapter.Factory callAdapterFactory,
-            ListenerAdapter.Factory listenerAdapterFactory,
-            Interceptor interceptor) throws URISyntaxException {
+            io.nucleos.sailsio.request.CallAdapter.Factory callAdapterFactory,
+            io.nucleos.sailsio.event.ListenerAdapter.Factory listenerAdapterFactory,
+            io.nucleos.sailsio.request.Interceptor interceptor) throws URISyntaxException {
 
         this.baseUrl = baseUrl;
         this.callAdapterFactory = callAdapterFactory;
@@ -40,11 +44,11 @@ public class SailsIO {
 
         //
         this.socket = IO.socket(this.baseUrl, options);
-        this.rawEvent = new RawEvent(this.socket);
+        this.rawEvent = new io.nucleos.sailsio.event.RawEvent(this.socket);
 
         // TODO
         // Por los momentos solo se utilizara el GSONConverter
-        this.converterFactory = new GsonConverterFactory();
+        this.converterFactory = new io.nucleos.sailsio.converter.gson.GsonConverterFactory();
 
         if (autoConnect) {
             connect();
@@ -72,26 +76,26 @@ public class SailsIO {
         return MethodHandler.create(method, this);
     }
 
-    public CallAdapter callAdapter(Type returnType) {
+    public io.nucleos.sailsio.request.CallAdapter callAdapter(Type returnType) {
         Utils.checkNotNull(returnType, "The returnType not should be null");
         return callAdapterFactory.get(returnType);
     }
 
-    public ListenerAdapter listenerAdapter(Type returnType) {
+    public io.nucleos.sailsio.event.ListenerAdapter listenerAdapter(Type returnType) {
         return listenerAdapterFactory.get(returnType);
     }
 
-    public <T> Converter<T, RequestBody> requestConverter() {
+    public <T> Converter<T, io.nucleos.sailsio.request.RequestBody> requestConverter() {
         // noinspection unchecked
-        return (Converter<T, RequestBody>) this.converterFactory.toRequestBody();
+        return (Converter<T, io.nucleos.sailsio.request.RequestBody>) this.converterFactory.toRequestBody();
     }
 
-    public Converter<JSONObject, ResponseRequest> responseConverter(Type type) {
+    public Converter<JSONObject, Response> responseConverter(Type type) {
         // noinspection unchecked
-        return this.converterFactory.toResponseRequest(type);
+        return this.converterFactory.toResponse(type);
     }
 
-    public Interceptor getInterceptor() {
+    public io.nucleos.sailsio.request.Interceptor getInterceptor() {
         return this.interceptor;
     }
 
@@ -103,7 +107,7 @@ public class SailsIO {
         socket.connect();
    }
 
-    public void onConnect(RawEvent.OnConnect onConnect) {
+    public void onConnect(io.nucleos.sailsio.event.RawEvent.OnConnect onConnect) {
         this.rawEvent.setOnConnect(onConnect);
     }
 
@@ -140,9 +144,9 @@ public class SailsIO {
     public static final class Builder {
         private String baseUrl;
         private boolean autoConnect;
-        private CallAdapter.Factory callAdapterFactory;
-        private ListenerAdapter.Factory listenerAdapterFactory;
-        private Interceptor interceptor;
+        private io.nucleos.sailsio.request.CallAdapter.Factory callAdapterFactory;
+        private io.nucleos.sailsio.event.ListenerAdapter.Factory listenerAdapterFactory;
+        private io.nucleos.sailsio.request.Interceptor interceptor;
         private Options options;
 
         public Builder() {
@@ -168,17 +172,17 @@ public class SailsIO {
             return this;
         }
 
-        public Builder callAdapterFactory(CallAdapter.Factory callAdapterFactory) {
+        public Builder callAdapterFactory(io.nucleos.sailsio.request.CallAdapter.Factory callAdapterFactory) {
             this.callAdapterFactory = callAdapterFactory;
             return this;
         }
 
-        public Builder listenerAdapterFactory(ListenerAdapter.Factory listenerAdapterFactory) {
+        public Builder listenerAdapterFactory(io.nucleos.sailsio.event.ListenerAdapter.Factory listenerAdapterFactory) {
             this.listenerAdapterFactory = listenerAdapterFactory;
             return this;
         }
 
-        public Builder interceptor(Interceptor interceptor) {
+        public Builder interceptor(io.nucleos.sailsio.request.Interceptor interceptor) {
             this.interceptor = interceptor;
             return this;
         }

@@ -6,12 +6,13 @@ import org.json.JSONObject;
 import java.lang.reflect.Type;
 
 import io.nucleos.sailsio.*;
+import io.nucleos.sailsio.Call;
 import io.socket.client.Ack;
 
 /**
  * Created by cmarcano on 07/10/15.
  */
-public class SocketCall<T> implements io.nucleos.sailsio.request.Call<T> {
+public class SocketCall<T> implements io.nucleos.sailsio.Call<T> {
 
     private SailsIO io;
     private RequestFactory requestFactory;
@@ -33,7 +34,7 @@ public class SocketCall<T> implements io.nucleos.sailsio.request.Call<T> {
 
         try {
 
-            this.io.getSocket().emit(request.getMethod().toLowerCase(), request.getBody(), new Ack() {
+            this.io.getSocket().emit(request.getMethod(), request.getBody(), new Ack() {
                 @Override
                 public void call(Object... args) {
                     try {
@@ -57,13 +58,15 @@ public class SocketCall<T> implements io.nucleos.sailsio.request.Call<T> {
 
     }
 
+
     @Override
-    public void cancel() {
+    public void listen(Callback<T> callback) {
+        throw new IllegalStateException("The method listen is not allowed for this object please use the method enqueue instead of this");
 
     }
 
     @Override
-    public io.nucleos.sailsio.request.Call<T> clone() {
+    public Call<T> clone() {
         return null;
     }
 }

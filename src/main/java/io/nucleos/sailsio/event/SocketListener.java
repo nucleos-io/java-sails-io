@@ -6,12 +6,13 @@ import java.lang.reflect.Type;
 
 import io.nucleos.sailsio.*;
 import io.nucleos.sailsio.Response;
+import io.nucleos.sailsio.Call;
 import io.socket.emitter.Emitter;
 
 /**
  * Created by cmarcano on 15/10/15.
  */
-public class SocketListener<T> implements Listener<T> {
+public class SocketListener<T> implements Call<T> {
 
     private SailsIO io;
     private io.nucleos.sailsio.event.ListenerFactory listenerFactory;
@@ -42,5 +43,17 @@ public class SocketListener<T> implements Listener<T> {
             }
         });
 
+    }
+
+    @Override
+    public void enqueue(Callback<T> callback) {
+        throw new IllegalStateException("The method enqueue is not allowed for this object please use the method listen instead of this");
+    }
+
+
+
+    @Override
+    public Call<T> clone() {
+        return null;
     }
 }

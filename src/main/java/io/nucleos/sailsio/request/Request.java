@@ -26,7 +26,7 @@ public class Request {
     }
 
     public String getMethod() {
-        return this.method;
+        return this.method.toLowerCase();
     }
 
     public JSONObject getBody() throws JSONException {

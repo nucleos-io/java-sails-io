@@ -3,8 +3,8 @@ package io.nucleos.sailsio;
 import java.lang.reflect.Type;
 
 
-/** Adapts a {@link Call} into the type of {@code T}. */
-public interface CallAdapter<T> extends Adapter<Call, T> {
+/** Adapts a {@link io.nucleos.sailsio.Call} into the type of {@code T}. */
+public interface CallAdapter<T> extends Adapter<io.nucleos.sailsio.Call, T> {
     /**
      * Returns the value type that this adapter uses when converting the HTTP response body to a Java
      * object. For example, the response type for {@code Call<Repo>} is {@code Repo}. This type
@@ -18,7 +18,7 @@ public interface CallAdapter<T> extends Adapter<Call, T> {
 
     /** Returns an instance of the {@code T} which adapts the execution of {@code call}. */
     @Override
-    T adapt(Call call);
+    T adapt(io.nucleos.sailsio.Call call);
 
     interface Factory extends Adapter.Factory{
         /**

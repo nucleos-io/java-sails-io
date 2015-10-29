@@ -9,8 +9,4 @@ public class DefaultInterceptor implements Interceptor {
         return builder.build();
     }
 
-    @Override
-    public ResponseRequest onResponse(ResponseRequest.Builder builder) {
-        return builder.build();
-    }
 }

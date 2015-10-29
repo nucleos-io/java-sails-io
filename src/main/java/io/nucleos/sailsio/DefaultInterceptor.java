@@ -1,5 +1,8 @@
 package io.nucleos.sailsio;
 
+import io.nucleos.sailsio.request.Interceptor;
+import io.nucleos.sailsio.request.Request;
+
 /**
  * Created by cmarcano on 12/10/15.
  */
@@ -9,8 +12,4 @@ public class DefaultInterceptor implements Interceptor {
         return builder.build();
     }
 
-    @Override
-    public ResponseRequest onResponse(ResponseRequest.Builder builder) {
-        return builder.build();
-    }
 }

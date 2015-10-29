@@ -13,7 +13,7 @@ public class MethodHandler<T> {
     private SailsIO io;
     private Method method;
     private FactoryParser factoryParser;
-    private Adapter<?,?> adapter;
+    private CallAdapter adapter;
     private Type responseType;
 
     /*
@@ -46,20 +46,21 @@ public class MethodHandler<T> {
      * @return
      */
     public Object invoke(Object... args) {
+
         if (this.factoryParser.isListener()) {
 
             if (args != null && args.length > 0) {
                 throw new IllegalArgumentException("The @ON annotation method not allow arguments");
             }
 
-            return ((io.nucleos.sailsio.event.ListenerAdapter)this.adapter).adapt(new SocketListener<>(
+            return  this.adapter.adapt(new SocketListener<>(
                     this.io,
                     this.factoryParser.toListenerFactory(),
                     this.responseType));
 
         } else {
 
-            return ((io.nucleos.sailsio.request.CallAdapter)this.adapter).adapt(new io.nucleos.sailsio.request.SocketCall<>(
+            return this.adapter.adapt(new io.nucleos.sailsio.request.SocketCall<>(
                     this.io,
                     this.factoryParser.toRequestFactory(),
                     this.responseType,
@@ -87,13 +88,7 @@ public class MethodHandler<T> {
         this.method = method;
         this.io = io;
         this.factoryParser = factoryParser;
-
-        if (factoryParser.isListener()) {
-            this.adapter = createListenerAdapter();
-        } else {
-            this.adapter = createCallAdapter();
-        }
-
+        this.adapter = createCallAdapter();
         this.responseType = this.adapter.responseType();
     }
 
@@ -101,17 +96,9 @@ public class MethodHandler<T> {
      *
      * @return
      */
-    private io.nucleos.sailsio.request.CallAdapter createCallAdapter() {
+    private CallAdapter createCallAdapter() {
         Type returnType = this.method.getGenericReturnType();
         return this.io.callAdapter(returnType);
     }
 
-    /**
-     *
-     * @return
-     */
-    private io.nucleos.sailsio.event.ListenerAdapter createListenerAdapter() {
-        Type returnType = this.method.getGenericReturnType();
-        return this.io.listenerAdapter(returnType);
-    }
 }

@@ -8,6 +8,7 @@ import java.lang.reflect.Type;
 public interface Adapter<A, T> {
 
     Type responseType();
+
     T adapt(A a);
 
     interface Factory {

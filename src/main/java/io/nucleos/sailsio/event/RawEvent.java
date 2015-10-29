@@ -11,6 +11,9 @@ public class RawEvent {
     private Socket socket;
     private OnConnect onConnect;
     private OnDisconnect onDisconnect;
+    private OnReconnect onReconnect;
+    private OnReconnectFailed onReconnectFailed;
+    private OnReconnectAttempt onReconnectAttempt;
 
     public RawEvent(Socket socket) {
         this.socket = socket;
@@ -24,6 +27,21 @@ public class RawEvent {
     public void setOnDisconnect(OnDisconnect onDisconnect) {
         this.onDisconnect = onDisconnect;
         onDisconnectEvent();
+    }
+
+    public void setOnReconnect(OnReconnect onReconnect) {
+        this.onReconnect = onReconnect;
+        onReconnect();
+    }
+
+    public void setOnReconnectFailed(OnReconnectFailed onReconnectFailed) {
+        this.onReconnectFailed = onReconnectFailed;
+        onReconnectFailed();
+    }
+
+    public void setOnReconnectAttempt(OnReconnectAttempt onReconnectAttemp) {
+        this.onReconnectAttempt = onReconnectAttemp;
+        onReconnectAttemp();
     }
 
     /*
@@ -42,6 +60,17 @@ public class RawEvent {
         this.socket.on(Socket.EVENT_CONNECT, new RawEmitterListener(this.onConnect, Socket.EVENT_CONNECT));
     }
 
+    private void onReconnect() {
+        this.socket.on(Socket.EVENT_RECONNECT, new RawEmitterListener(this.onReconnect, Socket.EVENT_RECONNECT));
+    }
+
+    private void onReconnectFailed() {
+        this.socket.on(Socket.EVENT_RECONNECT_FAILED, new RawEmitterListener(this.onReconnectFailed, Socket.EVENT_RECONNECT_FAILED));
+    }
+
+    private void onReconnectAttemp() {
+        this.socket.on(Socket.EVENT_RECONNECT_ATTEMPT, new RawEmitterListener(this.onReconnectAttempt, Socket.EVENT_RECONNECT_ATTEMPT));
+    }
 
     /*
      * ---------------------------------------------------------------------------------------------
@@ -90,5 +119,11 @@ public class RawEvent {
     public interface OnConnect extends OnRawEvent {}
 
     public interface OnDisconnect extends OnRawEvent {}
+
+    public interface OnReconnect extends OnRawEvent {}
+
+    public interface OnReconnectFailed extends OnRawEvent {}
+
+    public interface OnReconnectAttempt extends OnRawEvent {}
 
 }

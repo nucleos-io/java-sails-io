@@ -10,6 +10,11 @@ public class Response<T> {
 //    private Headers headers;
     private String modelId;
 
+
+    public Response(int statusCode) {
+        this.statusCode = statusCode;
+    }
+
     public Response(String modelId, T data) {
         this.modelId = modelId;
         this.data = data;

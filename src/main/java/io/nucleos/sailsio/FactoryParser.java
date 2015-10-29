@@ -9,8 +9,10 @@ import io.nucleos.sailsio.annotation.Body;
 import io.nucleos.sailsio.annotation.DELETE;
 import io.nucleos.sailsio.annotation.GET;
 import io.nucleos.sailsio.annotation.ON;
+import io.nucleos.sailsio.annotation.Path;
 import io.nucleos.sailsio.annotation.POST;
 import io.nucleos.sailsio.annotation.PUT;
+import io.nucleos.sailsio.request.RequestArgument;
 import io.nucleos.sailsio.request.RequestBody;
 import io.nucleos.sailsio.request.RequestFactory;
 
@@ -88,6 +90,8 @@ public class FactoryParser {
                     hasBody = true;
                     Converter<?, RequestBody> converter = this.io.requestConverter();
                     requestArguments.add(new io.nucleos.sailsio.request.RequestArgument.Body<>(converter, ((Body) annotation).value()));
+                } else if (annotation instanceof Path) {
+                    requestArguments.add(new io.nucleos.sailsio.request.RequestArgument.Path<>(((Path) annotation).value()));
                 }
             }
         }

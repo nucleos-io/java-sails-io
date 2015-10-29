@@ -25,10 +25,15 @@ public class GsonResponseConverter implements Converter<JSONObject, Response> {
     public Response convert(JSONObject value) throws IOException, JSONException {
         Response response = null;
         if (value.has("statusCode") && value.has("headers")) {
-            response = new Response<>(
-                    (int) value.get("statusCode"),
-                    this.typeAdapter.fromJson(value.get("body").toString())
-            );
+            if (value.has("body")) {
+                response = new Response<>(
+                        (int) value.get("statusCode"),
+                        this.typeAdapter.fromJson(value.get("body").toString())
+                );
+            } else {
+                response = new Response<>((int) value.get("statusCode"));
+            }
+
         } else if (value.has("id")) {
             response = new Response<>(
                     value.get("id").toString(),

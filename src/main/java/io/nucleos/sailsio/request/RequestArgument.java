@@ -31,4 +31,19 @@ public abstract class RequestArgument<T> {
         }
     }
 
+    public static class Path<T> extends RequestArgument<T> {
+
+        private String name;
+
+        public Path(String name) {
+            this.name = name;
+        }
+
+        @Override
+        void perform(io.nucleos.sailsio.request.Request.Builder requestBuilder, T value) {
+            Param param = new Param(this.name, value.toString());
+            requestBuilder.addPathParam(param);
+        }
+    }
+
 }

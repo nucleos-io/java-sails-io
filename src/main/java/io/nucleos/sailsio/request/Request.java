@@ -85,6 +85,16 @@ public class Request {
             return this;
         }
 
+        public Builder addPathParam(Param param) {
+            if (relativeUrl == null) {
+                // The relative URL is cleared when the first query parameter is set.
+                throw new AssertionError();
+            }
+            relativeUrl = relativeUrl.replace("{" + param.getKey() + "}", param.getValue());
+            return this;
+        }
+
+
         public Request build() {
             return new Request(this.relativeUrl, this.method, this.body);
         }
